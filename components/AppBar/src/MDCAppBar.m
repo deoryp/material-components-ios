@@ -272,6 +272,25 @@ static const CGFloat kStatusBarHeight = 20;
   }
 }
 
+- (void)willTransitionToTraitCollection:(UITraitCollection *)newCollection withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
+  NSLog(@"traitCollection");
+  [super willTransitionToTraitCollection:newCollection withTransitionCoordinator:coordinator];
+
+#if defined(POSSIBLE_APPBAR_FIX)
+  // Workaround for iPhone X Plus rotation from portrait to landscape not cancelling ink
+  if (newCollection.userInterfaceIdiom == UIUserInterfaceIdiomPhone &&
+      newCollection.verticalSizeClass == UIUserInterfaceSizeClassCompact &&
+      self.traitCollection.verticalSizeClass == UIUserInterfaceSizeClassRegular) {
+    if (self.navigationBar != nil) {
+      SEL reloadButtonViewsSelector = @selector(reloadButtonsViews);
+      if ([self.navigationBar respondsToSelector:reloadButtonViewsSelector]) {
+        [self.navigationBar performSelector:reloadButtonViewsSelector];
+      }
+    }
+  }
+#endif // defined(POSSIBLE_APPBAR_FIX)
+}
+
 #pragma mark User actions
 
 - (void)didTapBackButton:(id)sender {

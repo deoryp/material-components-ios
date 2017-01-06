@@ -680,6 +680,19 @@ static NSAttributedString *uppercaseAttributedString(NSAttributedString *string)
   }
 }
 
+- (void)traitCollectionDidChange:(nullable UITraitCollection *)previousTraitCollection {
+  [super traitCollectionDidChange:previousTraitCollection];
+
+#if defined(POSSIBLE_BUTTON_FIX)
+  // Workaround for iPhone X Plus rotation from portrait to landscape not cancelling ink
+  if (self.traitCollection.userInterfaceIdiom == UIUserInterfaceIdiomPhone &&
+      self.traitCollection.verticalSizeClass == UIUserInterfaceSizeClassCompact &&
+      previousTraitCollection.verticalSizeClass == UIUserInterfaceSizeClassRegular) {
+    [self.inkView cancelAllAnimationsAnimated:NO];
+  }
+#endif // defined(POSSIBLE_BUTTON_FIX)
+}
+
 #pragma mark - Deprecations
 
 - (BOOL)shouldCapitalizeTitle {
